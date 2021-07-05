@@ -1,11 +1,7 @@
 package com.hack.telegrambot.model;
-
-import com.hack.telegrambot.api.BotState;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 public class User {
@@ -14,9 +10,9 @@ public class User {
     private int id;
 
     private long chatId;
-    private BotState state;
+    private String state;
 
-    public User(long chatId, BotState state) {
+    public User(long chatId, String state) {
         this.chatId = chatId;
         this.state = state;
     }
@@ -41,11 +37,15 @@ public class User {
         this.chatId = chatId;
     }
 
-    public BotState getState() {
+    public void setChatId(long chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getState() {
         return state;
     }
 
-    public void setState(BotState state) {
+    public void setState(String state) {
         this.state = state;
     }
 

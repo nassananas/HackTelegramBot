@@ -3,8 +3,6 @@ package com.hack.telegrambot;
 import com.hack.telegrambot.api.BotState;
 import com.hack.telegrambot.api.BotStateContext;
 import com.hack.telegrambot.api.TelegramHandler;
-import com.hack.telegrambot.common.Figi;
-import com.hack.telegrambot.model.Candle;
 import com.hack.telegrambot.model.User;
 import com.hack.telegrambot.service.CandleService;
 import com.hack.telegrambot.service.GenerationService;
@@ -15,11 +13,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import javax.persistence.GeneratedValue;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -64,32 +58,14 @@ public class HackTelegramBot extends TelegramWebhookBot {
         if (update.getMessage() != null && update.getMessage().hasText()) {
             long chat_id = update.getMessage().getChatId();
             User user = userService.findByChatId(chat_id);
-
-            BotState state;
-
-            String text = update.getMessage().getText();
-
             if (user == null) {
-                state = BotState.START;
-                user = new User (chat_id, state);
+                user = new User(chat_id, BotState.START.name());
                 userService.addUser(user);
-                context = new BotStateContext(this, user, text);
             }
-            else {
-                context = new BotStateContext(this, user, text);
-                //state = user.getState();
-
-            }
+            context = new BotStateContext(this, user);
             TelegramHandler telegramHandler = new TelegramHandler(context, userService, generationService);
-            SendMessage sendMessage = telegramHandler.handleInputMessage();
-
-//            try {
-//                //execute(sendMessage);
-//            } catch (TelegramApiException e) {
-//                e.printStackTrace();
-//            }
+            telegramHandler.handleInputMessage(update);
         }
-
         return null;
     }
 

@@ -1,6 +1,7 @@
 package com.hack.telegrambot.model;
 
 import com.hack.telegrambot.common.Figi;
+import java.sql.Timestamp;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.Entity;
@@ -15,12 +16,13 @@ public class Candle {
     @GeneratedValue
     private int id;
 
-    private String figi;
+    private Figi figi;
+    //private String figi;
     private double low;
     private double high;
     private double open;
     private double close;
-    private String openTime;
+    private Timestamp openTime;
 
     public int getId() {
         return id;
@@ -30,38 +32,22 @@ public class Candle {
         this.id = id;
     }
 
-    public String getFigi() {
+    public Figi getFigi() {
         return figi;
     }
 
-    public void setFigi(String figi) {
+    public void setFigi(Figi figi) {
         this.figi = figi;
     }
 
-
-    //    public Figi getFigi() {
+    //    public String getFigi() {
 //        return figi;
 //    }
 //
-//    public void setFigi(Figi figi) {
+//    public void setFigi(String figi) {
 //        this.figi = figi;
 //    }
-//
-//    public double getFigiMin() {
-//        return figiMin;
-//    }
-//
-//    public void setFigiMin(double figiMin) {
-//        this.figiMin = figiMin;
-//    }
-//
-//    public double getFigiMax() {
-//        return figiMax;
-//    }
-//
-//    public void setFigiMax(double figiMax) {
-//        this.figiMax = figiMax;
-//    }
+
     public double getLow() {
         return low;
     }
@@ -94,11 +80,11 @@ public class Candle {
         this.close = close;
     }
 
-    public String getOpenTime() {
+    public Timestamp getOpenTime() {
         return openTime;
     }
 
-    public void setOpenTime(String openTime) {
+    public void setOpenTime(Timestamp openTime) {
         this.openTime = openTime;
     }
 }

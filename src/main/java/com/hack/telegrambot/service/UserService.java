@@ -19,6 +19,9 @@ public class UserService {
     public User findByChatId(long id) { return  userRepository.findByChatId(id); }
 
     @Transactional
+    public List<User> findAll() { return userRepository.findAll(); }
+
+    @Transactional
     public void addUser(User user){
         userRepository.save(user);
     }
@@ -29,7 +32,7 @@ public class UserService {
     }
 
     @Transactional
-    public List<User> findAll() { return  userRepository.findAll(); }
+    public List searchByStateLike(String state) {return userRepository.searchByStateLike(state);}
 
 
 }

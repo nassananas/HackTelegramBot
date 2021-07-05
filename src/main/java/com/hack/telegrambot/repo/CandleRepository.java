@@ -13,8 +13,6 @@ public interface CandleRepository extends JpaRepository<Candle, Integer> {
     @Query("SELECT c FROM Candle c ORDER BY c.id DESC")
     List<Candle> findAllCandles();
 
-    //List<Candle> findAllBy
-
     Candle findByFigi(String figi);
 
 }

@@ -6,15 +6,13 @@ import com.hack.telegrambot.model.Candle;
 import com.hack.telegrambot.common.Figi;
 import com.hack.telegrambot.model.User;
 import lombok.Data;
+import java.sql.Timestamp;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Configuration
 @Data
@@ -34,10 +32,9 @@ public class GenerationService {
     }
 
     public void generateValues(){
-
         for (Figi figi:Figi.values()) {
             Candle candle = new Candle();
-            candle.setFigi(figi.name());
+            candle.setFigi(figi);
             FigiProperty fp = new FigiProperty(figi);
 
             min = fp.getFigiMin();
@@ -46,11 +43,10 @@ public class GenerationService {
             candle.setClose(rnd(min, max));
             candle.setLow(rnd(min, Math.max(candle.getOpen(), candle.getClose())));
             candle.setHigh(rnd(Math.max(candle.getOpen(), candle.getClose()), max));
+            candle.setOpenTime(new Timestamp(System.currentTimeMillis()));
 
             candleService.addCandle(candle);
-
         }
-
     }
 
     public static double rnd(double min, double max)
@@ -60,36 +56,44 @@ public class GenerationService {
     }
 
     public void printCoin(Candle candle, long chatId) throws TelegramApiException {
-
-        //Candle candle = candleService.findByFigi(figi.name());
-        String str = "low: " + candle.getLow() + " \n"
-                + "high:" + candle.getHigh() + " \n"
-                + "open: " + candle.getOpen() + " \n"
-                + "close: " + candle.getClose() + " \n";
-            //+ "open time: " + dateFormat.format(new Date(candle.getOpenTime()));
-
-            hackTelegramBot.execute(new SendMessage(chatId, "свеча " + candle.getFigi() + ": \n" + str));
+        String str = "Low: " + candle.getLow() + " \n"
+                + "High:" + candle.getHigh() + " \n"
+                + "Open: " + candle.getOpen() + " \n"
+                + "Close: " + candle.getClose() + " \n"
+                + "Open time:" + candle.getOpenTime();
+            hackTelegramBot.execute(new SendMessage(chatId, "Свеча " + candle.getFigi() + ": \n" + str));
     }
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 15000)
     public void sendCoin() throws TelegramApiException {
         generateValues();
+        Candle candle = new Candle();
         List<Candle> candleList = candleService.findAllCandles();
-        List<User> listUsers = userService.findAll();
-        for (User user:
-             listUsers) {
+        List<User> userList = userService.searchByStateLike("SUBSCRIPTION");
+        for (User user:userList) {
             switch (user.getState()){
-                case SUBSCRIPTION_BTC:
-                    Candle candle = candleList.stream().filter(a -> user.getState().name().equals(a.getFigi())).findFirst().orElse(null);;
-                    printCoin(candle, user.getChatId());
+                case "SUBSCRIPTION_BTC":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.BTC)).findFirst().orElse(null);
                     break;
-                case SUBSCRIPTION_ETH:
-
-                case SUBSCRIPTION_BNB:
-
-                case SUBSCRIPTION_DOGE:
-
+                case "SUBSCRIPTION_ETH":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.ETH)).findFirst().orElse(null);
+                    break;
+                case "SUBSCRIPTION_BNB":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.BNB)).findFirst().orElse(null);
+                    break;
+                case "SUBSCRIPTION_DOGE":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.DOGE)).findFirst().orElse(null);
+                    break;
+                case "SUBSCRIPTION_DOT":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.DOT)).findFirst().orElse(null);
+                    break;
+                case "SUBSCRIPTION_ADA":
+                    candle = candleList.stream().filter(a -> a.getFigi().equals(Figi.ADA)).findFirst().orElse(null);
+                    break;
+                default:
+                    return;
             }
+            printCoin(candle, user.getChatId());
 
         }
     }
